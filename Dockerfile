@@ -1,12 +1,10 @@
 FROM python
 
-COPY ./requirements.txt /requirements.txt
+COPY . /
 
 WORKDIR /
 
 RUN pip install -r requirements.txt
-
-COPY . /
 
 EXPOSE 5000
 
