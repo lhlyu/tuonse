@@ -1,0 +1,18 @@
+name: deploy docker image
+# 在主分支代码发生变更后触发 action
+on:
+  push:
+    branches: ["master"]
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      # 检出代码主分支
+      - name: check out repo
+        uses: actions/checkout@v3
+      # 构建镜像，并将镜像推送到 ghcr.io
+      - name: build image and push it to ghcr.io
+        run: |
+          echo "${{ secrets.PACKAGE_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker build . -t ghcr.io/lhlyu/tuonse:latest
+          docker push ghcr.io/lhlyu/tuonse:latest
