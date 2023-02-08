@@ -1,6 +1,7 @@
 import os
 import hashlib
 import telebot
+import datetime
 from pytube import YouTube
 from moviepy.editor import VideoFileClip, vfx
 
@@ -33,6 +34,11 @@ def get_file_md5(file_path):
         temp_md5.update(file.read())
         hash_code = str(temp_md5.hexdigest()).lower()
     return hash_code
+
+
+def print_now(label: str):
+    now = datetime.datetime.now()
+    print(f'{label}: {str(now)}')
 
 
 @bot.message_handler(commands=['start'])
@@ -72,11 +78,17 @@ def command_yt(message):
     videoUrl = videoUrl[:videoUrl.find('?')]
     # 文件名
     name = os.path.basename(videoUrl)
+
+    print(f'--------- {name} ------------')
+    print_now(name + "-1")
+
     tip = bot.send_message(cid, f"*正在处理*：`{name}`", parse_mode='markdown')
     # 撤回之前的消息
     bot.delete_message(cid, message.id)
     # 下载视频
     video = f'{name}.mp4'
+
+    print_now(name + "-2")
 
     # 下载视频
     yt = YouTube(videoUrl)
@@ -86,11 +98,15 @@ def command_yt(message):
         .desc() \
         .first().download(filename=video)
 
+    print_now(name + "-3")
+
     video2 = f'{name}_2.mp4'
     # 视频处理
-    VideoFileClip(video).fx(vfx.colorx, 0.9).write_videofile(video2)
+    VideoFileClip(video).fx(vfx.colorx, 0.9).write_videofile(video2, logger=None)
     # 删除文件
     os.remove(video)
+
+    print_now(name + "-4")
 
     bot.delete_message(cid, tip.id)
     tip = bot.send_message(cid, f"*正在上传视频*：`{name}`", parse_mode='markdown')
@@ -104,9 +120,13 @@ def command_yt(message):
         caption += f'\n[视频原地址]({videoUrl})'
         bot.send_video(cid, f, caption=caption, parse_mode='markdown')
 
+    print_now(name + "-5")
+
     # 删除文件
     os.remove(video2)
     bot.delete_message(cid, tip.id)
+
+    print_now(name + "-6")
 
 
 if __name__ == '__main__':
